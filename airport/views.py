@@ -1,12 +1,14 @@
 from datetime import datetime
 
 from rest_framework import viewsets, mixins
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.pagination import PageNumberPagination
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
 
 from airport.models import Airport, Route, AirplaneType, Airplane, Crew, Flight, Order
+from airport.permissions import IsAdminALLORIsAuthenticatedOReadOnly
 from airport.serializers import (
     AirportSerializer,
     RouteSerializer,
@@ -22,7 +24,8 @@ from airport.serializers import (
 class AirportViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):
     queryset = Airport.objects.all()
     serializer_class = AirportSerializer
-    permission_classes = (IsAdminUser,)
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAdminALLORIsAuthenticatedOReadOnly,)
 
 
 class RouteViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):
