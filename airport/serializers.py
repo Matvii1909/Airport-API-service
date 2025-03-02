@@ -64,7 +64,7 @@ class FlightSerializer(serializers.ModelSerializer):
         model = Flight
         fields = (
             "id", "route", "airplane", "departure_time", "arrival_time",
-            "route_details", "airplane_details", "crew_members"
+            "route_details", "airplane_details", "crew_members",
         )
 
 
