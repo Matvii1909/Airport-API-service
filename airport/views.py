@@ -1,11 +1,13 @@
 from datetime import datetime
 
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets, mixins, status
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.pagination import PageNumberPagination
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
+from rest_framework.response import Response
 
 from airport.models import Airport, Route, AirplaneType, Airplane, Crew, Flight, Order
 from airport.permissions import IsAdminALLORIsAuthenticatedOReadOnly
@@ -17,7 +19,7 @@ from airport.serializers import (
     CrewSerializer,
     FlightSerializer,
     OrderSerializer,
-    OrderListSerializer,
+    OrderListSerializer, TicketListSerializer, AirplaneImageSerializer,
 )
 
 
@@ -40,10 +42,65 @@ class AirplaneTypeViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewse
     permission_classes = (IsAdminUser,)
 
 
-class AirplaneViewSet(viewsets.ModelViewSet):
-    queryset = Airplane.objects.all()
+class AirplaneViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
+):
+    queryset = Airplane.objects.prefetch_related("airplane_type")
     serializer_class = AirplaneSerializer
-    permission_classes = (IsAdminUser,)
+    permission_classes = (IsAdminALLORIsAuthenticatedOReadOnly,)
+
+    @staticmethod
+    def _params_to_ints(qs):
+        """Converts a list of string IDs to a list of integers"""
+        return [int(str_id) for str_id in qs.split(",")]
+
+    @action(
+        methods=["POST"],
+        detail=True,
+        permission_classes=[IsAdminUser],
+        url_path="upload-image",
+
+    )
+    def upload_image(self, request, pk=None):
+        """Endpoint for uploading image to specific movie"""
+        airplane = self.get_object()
+        serializer = self.get_serializer(airplane, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_queryset(self):
+        """Retrieve the airplanes with filters"""
+        name = self.request.query_params.get("name")
+        airplane_type = self.request.query_params.get("airplane_type")
+
+        queryset = self.queryset
+
+        if name:
+            queryset = queryset.filter(name__icontains=name)
+
+        if airplane_type:
+            airplane_type_ids = self._params_to_ints(airplane_type)
+            queryset = queryset.filter(airplane_type__id__in=airplane_type_ids)
+
+        return queryset.distinct()
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return AirplaneSerializer
+
+        if self.action == "retrieve":
+            return AirplaneSerializer
+
+        if self.action == "upload_image":
+            return AirplaneImageSerializer
+
+        return AirplaneSerializer
 
 
 class CrewViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):
