@@ -102,6 +102,19 @@ class AirplaneViewSet(
 
         return AirplaneSerializer
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "airplane_type",
+                type={"type": "array", "items": {"type": "number"}},
+                description="Filter by airplane type id (ex. ?airplane_type=1,2)",
+            ),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        """Get list of airplanes"""
+        return super().list(request, *args, **kwargs)
+
 
 class CrewViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):
     queryset = Crew.objects.all()
