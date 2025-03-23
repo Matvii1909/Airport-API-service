@@ -26,7 +26,6 @@ from airport.serializers import (
 class AirportViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):
     queryset = Airport.objects.all()
     serializer_class = AirportSerializer
-    # authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAdminALLORIsAuthenticatedOReadOnly,)
 
 
