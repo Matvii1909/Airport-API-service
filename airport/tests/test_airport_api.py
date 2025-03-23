@@ -8,10 +8,10 @@ from rest_framework import status
 from airport.models import Airport, Route, Airplane, Flight, Crew
 from airport.serializers import AirportSerializer, RouteSerializer, AirplaneSerializer, FlightSerializer
 
-AIRPORT_URL = reverse("airport-list")
-ROUTE_URL = reverse("route-list")
-AIRPLANE_URL = reverse("airplane-list")
-FLIGHT_URL = reverse("flight-list")
+AIRPORT_URL = reverse("airport:airport-list")
+ROUTE_URL = reverse("airport:route-list")
+AIRPLANE_URL = reverse("airport:airplane-list")
+FLIGHT_URL = reverse("airport:flight-list")
 
 
 def sample_airport(**params):
