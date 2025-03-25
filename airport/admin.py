@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import (
     Airport,
     Route,
-    AirplaneType,
+    Type,
     Airplane,
     Crew,
     Flight,
@@ -24,17 +24,17 @@ class RouteAdmin(admin.ModelAdmin):
     list_filter = ("source", "destination")
 
 
-@admin.register(AirplaneType)
-class AirplaneTypeAdmin(admin.ModelAdmin):
+@admin.register(Type)
+class TypeAdmin(admin.ModelAdmin):
     list_display = ("id", "name")
     search_fields = ("name",)
 
 
 @admin.register(Airplane)
 class AirplaneAdmin(admin.ModelAdmin):
-    list_display = ("id", "name", "airplane_type", "rows", "seats_in_row", "capacity")
-    search_fields = ("name", "airplane_type__name")
-    list_filter = ("airplane_type",)
+    list_display = ("id", "name", "rows", "seats_in_row", "capacity")
+    search_fields = ("name", "type__name")
+    list_filter = ("types",)
 
 
 @admin.register(Crew)

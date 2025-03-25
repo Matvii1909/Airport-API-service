@@ -5,7 +5,7 @@ from rest_framework.exceptions import ValidationError
 from airport.models import (
     Airport,
     Route,
-    AirplaneType,
+    Type,
     Airplane,
     Crew,
     Flight,
@@ -29,15 +29,15 @@ class RouteSerializer(serializers.ModelSerializer):
         fields = ("id", "source", "destination", "distance", "source_name", "destination_name")
 
 
-class AirplaneTypeSerializer(serializers.ModelSerializer):
+class TypeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AirplaneType
+        model = Type
         fields = ("id", "name")
 
 
 class AirplaneSerializer(serializers.ModelSerializer):
-    airplane_type_name = serializers.CharField(source="airplane_type.name", read_only=True)
-    capacity = serializers.IntegerField(read_only=True)
+    # airplane_type = AirplaneTypeSerializer(many=True, read_only=True)
+    # capacity = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Airplane
@@ -46,8 +46,28 @@ class AirplaneSerializer(serializers.ModelSerializer):
             "name",
             "rows",
             "seats_in_row",
-            "airplane_type",
-            "airplane_type_name",
+            "types",
+            "capacity",
+        )
+
+
+class AirplaneListSerializer(AirplaneSerializer):
+    types = serializers.SlugRelatedField(
+        many=True, read_only=True, slug_field="name"
+    )
+
+    # capacity = serializers.SlugRelatedField(
+    #     many=True, read_only=True, slug_field="full_name"
+    # )
+
+    class Meta:
+        model = Airplane
+        fields = (
+            "id",
+            "name",
+            "rows",
+            "seats_in_row",
+            "types",
             "capacity",
         )
 

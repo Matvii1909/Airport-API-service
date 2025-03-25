@@ -5,21 +5,22 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.viewsets import GenericViewSet
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
 from rest_framework.response import Response
 
-from airport.models import Airport, Route, AirplaneType, Airplane, Crew, Flight, Order
+from airport.models import Airport, Route, Type, Airplane, Crew, Flight, Order
 from airport.permissions import IsAdminALLORIsAuthenticatedOReadOnly
 from airport.serializers import (
     AirportSerializer,
     RouteSerializer,
-    AirplaneTypeSerializer,
+    TypeSerializer,
     AirplaneSerializer,
     CrewSerializer,
     FlightSerializer,
     OrderSerializer,
-    OrderListSerializer, TicketListSerializer, AirplaneImageSerializer,
+    OrderListSerializer, TicketListSerializer, AirplaneImageSerializer, AirplaneListSerializer,
 )
 
 
@@ -35,10 +36,14 @@ class RouteViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets.Gene
     permission_classes = (IsAdminUser,)
 
 
-class AirplaneTypeViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):
-    queryset = AirplaneType.objects.all()
-    serializer_class = AirplaneTypeSerializer
-    permission_classes = (IsAdminUser,)
+class TypeViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    GenericViewSet
+):
+    queryset = Type.objects.all()
+    serializer_class = TypeSerializer
+    permission_classes = (IsAdminALLORIsAuthenticatedOReadOnly,)
 
 
 class AirplaneViewSet(
@@ -47,7 +52,7 @@ class AirplaneViewSet(
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
-    queryset = Airplane.objects.prefetch_related("airplane_type")
+    queryset = Airplane.objects.prefetch_related("types")
     serializer_class = AirplaneSerializer
     permission_classes = (IsAdminALLORIsAuthenticatedOReadOnly,)
 
@@ -56,12 +61,39 @@ class AirplaneViewSet(
         """Converts a list of string IDs to a list of integers"""
         return [int(str_id) for str_id in qs.split(",")]
 
+    def get_queryset(self):
+        """Retrieve the airplanes with filters"""
+        name = self.request.query_params.get("name")
+        types = self.request.query_params.get("types")
+
+        queryset = self.queryset
+
+        if name:
+            queryset = queryset.filter(name__icontains=name)
+
+        if types:
+            types_names = types.split(",")
+            queryset = queryset.filter(types__name__in=types_names)
+
+        return queryset.distinct()
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return AirplaneListSerializer
+
+        if self.action == "retrieve":
+            return AirplaneSerializer
+
+        if self.action == "upload_image":
+            return AirplaneImageSerializer
+
+        return AirplaneSerializer
+
     @action(
         methods=["POST"],
         detail=True,
-        permission_classes=[IsAdminUser],
         url_path="upload-image",
-
+        permission_classes=[IsAdminUser],
     )
     def upload_image(self, request, pk=None):
         """Endpoint for uploading image to specific movie"""
@@ -73,39 +105,11 @@ class AirplaneViewSet(
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def get_queryset(self):
-        """Retrieve the airplanes with filters"""
-        name = self.request.query_params.get("name")
-        airplane_type = self.request.query_params.get("airplane_type")
-
-        queryset = self.queryset
-
-        if name:
-            queryset = queryset.filter(name__icontains=name)
-
-        if airplane_type:
-            airplane_type_ids = self._params_to_ints(airplane_type)
-            queryset = queryset.filter(airplane_type__id__in=airplane_type_ids)
-
-        return queryset.distinct()
-
-    def get_serializer_class(self):
-        if self.action == "list":
-            return AirplaneSerializer
-
-        if self.action == "retrieve":
-            return AirplaneSerializer
-
-        if self.action == "upload_image":
-            return AirplaneImageSerializer
-
-        return AirplaneSerializer
-
     @extend_schema(
         parameters=[
             OpenApiParameter(
-                "airplane_type",
-                type={"type": "array", "items": {"type": "number"}},
+                "types",
+                type={"types": "list", "items": {"type": "number"}},
                 description="Filter by airplane type id (ex. ?airplane_type=1,2)",
             ),
         ]
