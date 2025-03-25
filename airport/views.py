@@ -31,12 +31,6 @@ class AirportViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets.Ge
     permission_classes = (IsAdminALLORIsAuthenticatedOReadOnly,)
 
 
-class RouteViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):
-    queryset = Route.objects.all()
-    serializer_class = RouteSerializer
-    permission_classes = (IsAdminUser,)
-
-
 class TypeViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
@@ -47,9 +41,15 @@ class TypeViewSet(
     permission_classes = (IsAdminALLORIsAuthenticatedOReadOnly,)
 
 
+class RouteViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):
+    queryset = Route.objects.all()
+    serializer_class = RouteSerializer
+    permission_classes = (IsAdminUser,)
+
+
 class AirplaneViewSet(
-    mixins.ListModelMixin,
     mixins.CreateModelMixin,
+    mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):

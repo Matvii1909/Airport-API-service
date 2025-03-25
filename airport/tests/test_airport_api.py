@@ -110,7 +110,6 @@ class AuthenticatedAirportApiTests(TestCase):
         airplane_2.types.add(airplane_type_2)
 
         airplane_without_type = sample_airplane(name="Airplane without type")
-        print(airplane_without_type.types)
 
         res = self.client.get(
             AIRPLANE_URL,
@@ -138,24 +137,70 @@ class AuthenticatedAirportApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
 
-    def test_create_airport_forbidden(self):
-        payload = {"name": "New Airport", "closest_big_city": "New City"}
-        res = self.client.post(AIRPORT_URL, payload)
+    def test_create_airplane_forbidden(self):
+        payload = {
+            "name": "Airplane X",
+            "rows": 30,
+            "seats_in_row": 6,
+            "types": ["Civil Craft", ],
+        }
+
+        res = self.client.post(AIRPLANE_URL, payload)
+
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
 
-class AdminAirportApiTests(TestCase):
+class AdminAirplaneTests(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = get_user_model().objects.create_user(
-            "admin@admin.com", "testpass", is_staff=True
+            email="admin@admin.com", password="testpass", is_staff=True
         )
         self.client.force_authenticate(self.user)
 
-    def test_create_airport(self):
-        payload = {"name": "New Airport", "closest_big_city": "New City"}
-        res = self.client.post(AIRPORT_URL, payload)
+    def test_create_airplane(self):
+
+        payload = {
+            "name": "Airplane X",
+            "rows": 30,
+            "seats_in_row": 6,
+        }
+
+        res = self.client.post(AIRPLANE_URL, payload)
+
+        airplane = Airplane.objects.get(id=res.data["id"])
+
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        airport = Airport.objects.get(id=res.data["id"])
+
         for key in payload.keys():
-            self.assertEqual(payload[key], getattr(airport, key))
+            self.assertEqual(payload[key], getattr(airplane, key))
+
+    def test_create_airplane_with_types(self):
+        airplane_type_1 = Type.objects.create(name="Magic Aircraft")
+        airplane_type_2 = Type.objects.create(name="Plastic Aircraft")
+
+        payload = {
+            "name": "Airplane X",
+            "rows": 30,
+            "seats_in_row": 6,
+            "types": [airplane_type_1.id, airplane_type_2.id]
+        }
+
+        res = self.client.post(AIRPLANE_URL, payload)
+
+        airplane = Airplane.objects.get(id=res.data["id"])
+        types = airplane.types.all()
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertIn(airplane_type_1, types)
+        self.assertIn(airplane_type_2, types)
+        self.assertEqual(types.count(), 2)
+
+    def test_delete_airplane_now_allowed(self):
+        airplane = sample_airplane()
+
+        url = detail_url(airplane.id)
+
+        res = self.client.delete(url)
+
+        self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
