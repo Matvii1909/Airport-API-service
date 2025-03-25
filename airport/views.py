@@ -21,6 +21,7 @@ from airport.serializers import (
     FlightSerializer,
     OrderSerializer,
     OrderListSerializer, TicketListSerializer, AirplaneImageSerializer, AirplaneListSerializer,
+    AirplaneDetailSerializer,
 )
 
 
@@ -82,7 +83,7 @@ class AirplaneViewSet(
             return AirplaneListSerializer
 
         if self.action == "retrieve":
-            return AirplaneSerializer
+            return AirplaneDetailSerializer
 
         if self.action == "upload_image":
             return AirplaneImageSerializer

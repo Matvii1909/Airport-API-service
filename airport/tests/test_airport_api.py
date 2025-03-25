@@ -7,7 +7,7 @@ from rest_framework import status
 
 from airport.models import Airport, Route, Airplane, Flight, Crew, Type
 from airport.serializers import AirportSerializer, RouteSerializer, AirplaneSerializer, FlightSerializer, \
-    AirplaneListSerializer
+    AirplaneListSerializer, AirplaneDetailSerializer
 
 AIRPORT_URL = reverse("airport:airport-list")
 ROUTE_URL = reverse("airport:route-list")
@@ -45,6 +45,10 @@ def sample_airplane(**params):
     defaults.update(params)
 
     return Airplane.objects.create(**defaults)
+
+
+def detail_url(airplane_id):
+    return reverse("airport:airplane-detail", args=(airplane_id,))
 
 
 def sample_flight(**params):
@@ -120,6 +124,19 @@ class AuthenticatedAirportApiTests(TestCase):
         self.assertIn(serializer_aircraft_type_1.data, res.data)
         self.assertIn(serializer_aircraft_type_2.data, res.data)
         self.assertNotIn(serializer_without_aircraft_type.data, res.data)
+
+    def test_retrieve_airplane_details(self):
+        airplane = sample_airplane()
+        airplane.types.add(Type.objects.create(name="Transporter"))
+
+        url = detail_url(airplane.id)
+
+        res = self.client.get(url)
+
+        serializer = AirplaneDetailSerializer(airplane)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, serializer.data)
 
     def test_create_airport_forbidden(self):
         payload = {"name": "New Airport", "closest_big_city": "New City"}
