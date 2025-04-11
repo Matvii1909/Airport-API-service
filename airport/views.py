@@ -97,7 +97,7 @@ class AirplaneViewSet(
         permission_classes=[IsAdminUser],
     )
     def upload_image(self, request, pk=None):
-        """Endpoint for uploading image to specific movie"""
+        """Endpoint for uploading image to specific airplane"""
         airplane = self.get_object()
         serializer = self.get_serializer(airplane, data=request.data)
         if serializer.is_valid():
@@ -110,8 +110,8 @@ class AirplaneViewSet(
         parameters=[
             OpenApiParameter(
                 "types",
-                type={"types": "list", "items": {"type": "number"}},
-                description="Filter by airplane type id (ex. ?airplane_type=1,2)",
+                type={"type": "string"},
+                description="Filter by airplane type name (ex. ?types=Boeing,Airbus)",
             ),
         ]
     )
