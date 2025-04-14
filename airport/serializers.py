@@ -1,4 +1,5 @@
 from django.db import transaction
+
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -36,9 +37,6 @@ class TypeSerializer(serializers.ModelSerializer):
 
 
 class AirplaneSerializer(serializers.ModelSerializer):
-    # airplane_type = AirplaneTypeSerializer(many=True, read_only=True)
-    # capacity = serializers.IntegerField(read_only=True)
-
     class Meta:
         model = Airplane
         fields = (
@@ -56,7 +54,6 @@ class AirplaneListSerializer(AirplaneSerializer):
     types = serializers.SlugRelatedField(
         many=True, read_only=True, slug_field="name"
     )
-
 
     class Meta:
         model = Airplane
