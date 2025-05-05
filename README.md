@@ -75,6 +75,6 @@ A RESTful API for managing and ordering flight tickets. Built with **Django 5.1*
 
 ## Getting access
 
-   `create user via /api/user/register/`
+   - create user via /api/user/register/
 
-   `get access token via /api/user/token/`
+   - get access token via /api/user/token/
