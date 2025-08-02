@@ -21,4 +21,4 @@ RUN adduser \
 RUN chown -R my_user /files/my_media && \
     chmod -R 755 /files/my_media
 
-USER my_user
+# USER my_user
