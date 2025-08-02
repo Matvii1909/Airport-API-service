@@ -29,6 +29,11 @@ class AirportViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets.Ge
     queryset = Airport.objects.all()
     serializer_class = AirportSerializer
     permission_classes = (IsAdminALLORIsAuthenticatedOReadOnly,)
+    
+    def get_permissions(self):
+        if self.action == 'list':
+            return []  # Allow public access to list airports
+        return super().get_permissions()
 
 
 class TypeViewSet(
@@ -56,6 +61,11 @@ class AirplaneViewSet(
     queryset = Airplane.objects.prefetch_related("types")
     serializer_class = AirplaneSerializer
     permission_classes = (IsAdminALLORIsAuthenticatedOReadOnly,)
+    
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return []  # Allow public access to list and retrieve airplanes
+        return super().get_permissions()
 
     @staticmethod
     def _params_to_ints(qs):
@@ -134,6 +144,11 @@ class FlightViewSet(viewsets.ModelViewSet):
     )
     serializer_class = FlightSerializer
     permission_classes = (IsAdminUser,)
+    
+    def get_permissions(self):
+        if self.action == 'list':
+            return []  # Allow public access to list flights
+        return super().get_permissions()
 
     def get_queryset(self):
         departure_date = self.request.query_params.get("departure_date")

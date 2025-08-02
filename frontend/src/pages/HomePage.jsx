@@ -9,17 +9,29 @@ import { testApiConnection } from '../utils/apiTest'
 const HomePage = () => {
   const navigate = useNavigate()
   const [apiStatus, setApiStatus] = useState(null)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     const checkApi = async () => {
-      const isConnected = await testApiConnection()
-      setApiStatus(isConnected)
+      try {
+        const isConnected = await testApiConnection()
+        setApiStatus(isConnected)
+      } catch (err) {
+        console.error('API check error:', err)
+        setError('Failed to connect to API')
+        setApiStatus(false)
+      }
     }
     checkApi()
   }, [])
 
   return (
     <Box>
+      {/* Test message to see if React is working */}
+      <Typography variant="h2" component="h1" gutterBottom align="center" color="primary">
+        🛩️ Airport Booking System is Working!
+      </Typography>
+      
       <Typography variant="h3" component="h1" gutterBottom align="center">
         Welcome to Airport Booking System
       </Typography>
@@ -28,7 +40,12 @@ const HomePage = () => {
         Book your flights with ease and comfort
       </Typography>
 
-      {apiStatus !== null && (
+      {error && (
+        <Alert severity="error" sx={{ mb: 2, maxWidth: 600, mx: 'auto' }}>
+          {error}
+        </Alert>
+      )}
+      {apiStatus !== null && !error && (
         <Alert 
           severity={apiStatus ? 'success' : 'error'} 
           sx={{ mb: 2, maxWidth: 600, mx: 'auto' }}
