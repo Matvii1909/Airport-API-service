@@ -1,11 +1,12 @@
 import { Outlet } from 'react-router-dom'
 import { AppBar, Toolbar, Typography, Button, Box, Container } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
+import { AdminPanelSettings as AdminIcon } from '@mui/icons-material'
 import useAuthStore from '../../store/authStore'
 
 const Layout = () => {
   const navigate = useNavigate()
-  const { isAuthenticated, logout } = useAuthStore()
+  const { isAuthenticated, logout, user } = useAuthStore()
 
   const handleLogout = () => {
     logout()
@@ -25,16 +26,25 @@ const Layout = () => {
           <Button color="inherit" onClick={() => navigate('/flights')}>
             Flights
           </Button>
-          {isAuthenticated ? (
-            <>
-              <Button color="inherit" onClick={() => navigate('/orders')}>
-                My Orders
-              </Button>
-              <Button color="inherit" onClick={handleLogout}>
-                Logout
-              </Button>
-            </>
-          ) : (
+                         {isAuthenticated ? (
+                 <>
+                   <Button color="inherit" onClick={() => navigate('/orders')}>
+                     My Orders
+                   </Button>
+                   {user && (user.is_staff || user.is_superuser) && (
+                     <Button 
+                       color="inherit" 
+                       onClick={() => navigate('/admin')}
+                       startIcon={<AdminIcon />}
+                     >
+                       Admin
+                     </Button>
+                   )}
+                   <Button color="inherit" onClick={handleLogout}>
+                     Logout
+                   </Button>
+                 </>
+               ) : (
             <>
               <Button color="inherit" onClick={() => navigate('/login')}>
                 Login
