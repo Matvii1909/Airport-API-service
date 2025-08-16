@@ -1,7 +1,7 @@
 import { Typography, Box, Paper, Grid, Button, Alert } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import FlightIcon from '@mui/icons-material/Flight'
+import FlightLandTwoIconIcon from '@mui/icons-material/FlightLand'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import PersonIcon from '@mui/icons-material/Person'
 import { testApiConnection } from '../utils/apiTest'
@@ -27,13 +27,12 @@ const HomePage = () => {
 
   return (
     <Box>
-      {/* Test message to see if React is working */}
       <Typography variant="h2" component="h1" gutterBottom align="center" color="primary">
-        🛩️ Airport Booking System is Working!
+        👑 Airport Booking System is Working!
       </Typography>
       
       <Typography variant="h3" component="h1" gutterBottom align="center">
-        Welcome to Airport Booking System
+        Welcome to Airport Booking System (✿◡‿◡)
       </Typography>
       
       <Typography variant="h6" component="p" gutterBottom align="center" color="text.secondary">
@@ -57,7 +56,7 @@ const HomePage = () => {
       <Grid container spacing={3} sx={{ mt: 4 }}>
         <Grid item xs={12} md={4}>
           <Paper sx={{ p: 3, textAlign: 'center', height: '100%' }}>
-            <FlightIcon sx={{ fontSize: 60, color: 'primary.main', mb: 2 }} />
+            <FlightLandTwoIconIcon sx={{ fontSize: 60, color: 'primary.main', mb: 2 }} />
             <Typography variant="h5" component="h2" gutterBottom>
               Search Flights
             </Typography>
