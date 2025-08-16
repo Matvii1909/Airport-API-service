@@ -1,4 +1,4 @@
-# 🛩️ Airport Booking System
+# 🛩 Airport Booking System
 
 A full-stack application for booking flight tickets with Django REST API backend and React frontend.
 
