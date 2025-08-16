@@ -29,11 +29,11 @@ const HomePage = () => {
     <Box>
       {/* Test message to see if React is working */}
       <Typography variant="h2" component="h1" gutterBottom align="center" color="primary">
-        🛩️ Airport Booking System is Working!
+        👑 Airport Booking System is Working!
       </Typography>
       
       <Typography variant="h3" component="h1" gutterBottom align="center">
-        Welcome to Airport Booking System
+        Welcome to Airport Booking System (✿◡‿◡)
       </Typography>
       
       <Typography variant="h6" component="p" gutterBottom align="center" color="text.secondary">
